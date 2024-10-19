@@ -1,4 +1,5 @@
-Here you will find a selection of example scripts and  data used in the Collective behaviour field course at the KRC:
+Here you will find a selection of example scripts and  data used in the Collective behaviour field course at KRC.
+You can use the provided matherials for:
 1. Performing  basic quality checks on your bioacoustic data , generating spectrogram visualisations and running basic spectral analysis (See PAM folder)
 2.  TO ADD: Spatial and movement data (in progress)
 3.  Generating random groups from a list of names/items
