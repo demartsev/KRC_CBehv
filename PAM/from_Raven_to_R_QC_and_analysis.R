@@ -28,7 +28,7 @@ library(tidyverse)
 vignette("Rraven")
 
 #set the path to the folder where your audio file an your Raven selection table live
-setwd("C:/Users/vdemartsev/ownCloud - vdemartsev@ab.mpg.de@owncloud.gwdg.de/SA_field_course/Program/CBEHAV_KRC_Scripts/PAM/selection_tables")
+setwd("SET THE PATH TO YOUR DATA FOLDER HERE")
 
 
 #### DATA LOADING AND PRE-PROCESSING #####
