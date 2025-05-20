@@ -15,4 +15,10 @@ install_if_missing <- function(pkg) {
 # Install all packages
 sapply(packages, install_if_missing)
 
+#load the packages
+#method 1: each individually
+library(tidyverse) ; library(TTR) ; library(scales) ; library(behavr) ; library(ggetho) ; 
+library(zeitgebr) ; library(lubridate) ; library(hms) ; library(sleepr) ; #...etc
+
+#method 2: all at once
 lapply(packages, require, character.only = T)
