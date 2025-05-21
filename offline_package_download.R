@@ -25,11 +25,13 @@ getDependencies <- function(packs){
 }
 # Calculate dependencies
 packages.dep <- getDependencies(packages)
+#add dependencies to the package list
+packages.download = c(packages,packages.dep)
 
 # Download the packages to the working directory.
 # Package names and filenames are returned in a matrix.
 setwd("C:.../offline_packages/") #adjust as necessary
-pkgInfo <- download.packages(pkgs = packages, destdir = getwd(), type = "win.binary")
+pkgInfo <- download.packages(pkgs = packages.download, destdir = getwd(), type = "win.binary")
 # Save just the package file names (basename() strips off the full paths leaving just the filename)
 write.csv(file = "pkgFilenames.csv", basename(pkgInfo[, 2]), row.names = FALSE)
 
