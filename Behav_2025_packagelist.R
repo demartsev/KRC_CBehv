@@ -17,10 +17,42 @@ sapply(packages, install_if_missing)
 
 #load the packages
 #method 1: each individually
-library(tidyverse) ; library(TTR) ; library(scales) ; library(behavr) ; library(ggetho) ; 
-library(zeitgebr) ; library(lubridate) ; library(hms) ; library(sleepr) ; #...etc
+library(tidyverse)
+library(TTR)
+library(scales)
+library(behavr)
+library(ggetho)
+library(zeitgebr)
+library(lubridate)
+library(hms)
+library(sleepr)
+library(ks)
+library(lme4)
+library(bioacoustics)
+library(warbleR)
+library(tuneR)
+library(seewave)
+library(soundgen)
+library(chron)
+library(sp)
+library(raster)
+library(move) 
+library(ggmap)
+library(mapproj)
+library(lattice)
+library(RColorBrewer)
+library(adehabitatHR)
 
+#loading each individually for the first time helps to determine if any of them failed to install properly
 #method 2: all at once
+library(tidyverse) ; library(TTR) ; library(scales) ; library(behavr) ; library(ggetho) ; 
+library(zeitgebr) ; library(lubridate) ; library(hms) ; library(sleepr) ; library(ks) ;
+library(lme4) ; library(bioacoustics) ; library(warbleR) ; library(tuneR) ; library(seewave) ;
+library(soundgen) ; library(chron) ; library(sp) ; library(raster) ; library(move) ; 
+library(ggmap) ; library(mapproj) ; library(lattice) ; library(RColorBrewer) ; library(adehabitatHR) ;
+
+#this also will load them all at once
+#then will provide an output saying True or False if they loaded or did not load
 lapply(packages, require, character.only = T)
 
 #!STOP!#
