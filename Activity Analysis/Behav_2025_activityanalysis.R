@@ -18,14 +18,17 @@ setwd("C:/Users/kylet/Desktop/KRC_Behav_ACC") #you can manually set your working
 library(tidyverse) ; library(data.table) ; library(behavr) ; library(ggetho) ; library(zeitgebr) ; library(sleepr) ; library(scales)
 
 
-#note that raw accelerometer data files are recorded at 25hz (25 recordings/second) 
+#note that raw accelerometer data files are often recorded at high frequency of 25hz (25 recordings/second) 
 #data taken over 2 weeks can have over 11.5 million rows and be almost 2GB in size!
-#our pike data recorded for 1 year is 6-7GB each
+#our pike data recorded for 1 year are 6-7GB each
 #so for very large files like this you need a computer with quite a lot of ram (minimum 16gb, preferably 32gb+)
-#this code will load in each file one by one, calculate a mean value from X,Y,Z scores
-#save as a csv file, and then reload each and combine into one file
-#if you computer is maxing out the memory, clear the RStudio memory before doing the next
-#in the Environment panel (top right), click on the circle with MiB and select "Free Unused R Memory"
+#or write custom functions to read the data in chunks if you computer is maxing out the memory 
+#this code will load in an example raw data file and calculate a mean ODBA value from X,Y,Z scores
+#then save it as a csv file
+#you can repeat this code then for each file that you would need to do the calculation for 
+
+#after the OBDA is calculated, then the code will create actograms and make plots of daily activity
+#this code can be adopted to your own data is there is a 'active' or 'resting/sleeping' value
 
 ###!!!READ THE COMMENTS!!!
 
@@ -116,8 +119,8 @@ acc.data.ODBA = acc.data %>%
 head(ODBA) #once again check the first few rows to see if it makes sense, it is every 2 seconds so that's good
 str(ODBA)
 #now save the data as a csv file, changing the AnimalID to match the data you loaded in
-write.csv(ODBA, file = "150_ODBA.csv", row.names = F) #the row.names = F prevents R from adding a column with unique values
-#!!! remember to change the file name here to  match the tag/animal ID!!!
+write.csv(acc.data.ODBA, file = "150_ODBA.csv", row.names = F) #the row.names = F prevents R from adding a column with unique values
+#!!! if reading in each file and calculating ODBA, change the file name here to  match the tag/animal ID!!!
 #repeat from Step 2 for each individual, changing the AnimalID in line 104
 
 #-----Step 4: create dataset for analysis-----------------------------
