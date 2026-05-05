@@ -15,7 +15,7 @@
 setwd("C:/Users/kylet/Desktop/KRC_Behav_ACC") #you can manually set your working directory here if you have not done it in settings
 
 #load in the packages we need the ; here allows you to load all these at once instead of individually
-library(tidyverse) ; library(TTR) ; library(behavr) ; library(ggetho) ; library(zeitgebr) ; library(sleepr) ; library(scales)
+library(tidyverse) ; library(data.table) ; library(behavr) ; library(ggetho) ; library(zeitgebr) ; library(sleepr) ; library(scales)
 
 
 #note that raw accelerometer data files are recorded at 25hz (25 recordings/second) 
@@ -38,16 +38,18 @@ library(tidyverse) ; library(TTR) ; library(behavr) ; library(ggetho) ; library(
 list.files(pattern = "\\.csv$", full.names = T)
 
 #-----Step 2: load data and view-----------------------------
-#now we load in student ACC data
+#now we load in one of the ACC data files to show how to calculate Overall Dynamic Body Acceleration (ODBA)
 #we create a new data frame called acc.data by reading the file name in our working directory
-#we load in the files one by one and make some changes
 #we will keep the name of the loaded file the same in R for repeatability
-#then after saving it (on line 112) go back to line 47 and repeat with the next file
-#since the file is separated by tabs (not commas) read.table is better
-acc.data = read.table('150.csv', sep = ';', header = T) %>% #remember to change the file name if doing multiple files
-  mutate(Timestamp = ymd_hms(Timestamp, tz = 'UTC'),
-         Timestamp = Timestamp + hours(2)) #this makes the Timestamp column a date and time object
-                                        #tz sets the time zone, otherwise the times may be off by an hour or two
+#for larger files, fread is faster than read.csv or read.table
+
+acc.data = fread('150.csv', sep = ';') %>% #sep here specifies what separates columns
+  mutate(Timestamp = ymd_hms(Timestamp, tz = 'UTC'), 
+         #this makes the Timestamp column a date and time object
+         #tz sets the time zone, otherwise the times may be off by an hour or two
+         #then convert to GMT+2 simply by adding 2 hours (other ways are of course possible to set time zone)
+         Timestamp = Timestamp + hours(2)) 
+                                        
 #even though our files are relatively short, it still takes a lot of memory to work with them
 
 #let's look at the first few lines to see if the file loaded as expected
@@ -74,38 +76,43 @@ ggplot(LiftFinder) +
 #which takes the mean XYZ acceleration values over 2 second windows to calculate ODBA
 
 #we will build a custom function to calculate the ODBA
-fun_ODBA<-function(X,Y,Z){ 
-  
+fun_ODBA<-function(X,Y,Z,window){ 
   #Calculate baseline running mean for 2 second interval (50 data points)
-  accXSmooth<-TTR::runMean(X,50) #the 'TTR::' specifies the function is in the TTR package
-  accYSmooth<-TTR::runMean(Y,50)
-  accZSmooth<-TTR::runMean(Z,50)
-  
-  #Subtracting baseline from X,Y,Z and make all values positive (absolute values)
+  accXSmooth = frollmean(X, n = window, align = "center") #take the mean of X values in n intervals
+  accYSmooth = frollmean(Y, n = window, align = "center")
+  accZSmooth = frollmean(Z, n = window, align = "center")
+  #Subtract baseline from X,Y,Z and make all values positive (absolute values)
   accX_DBA<-abs(X-accXSmooth)
   accY_DBA<-abs(Y-accYSmooth)
   accZ_DBA<-abs(Z-accZSmooth)
-  
   #Add transformed values from X,Y and Z together
   accX_DBA+accY_DBA+accZ_DBA
 }
 
 #-----Step 3b: get OBDA values-----------------------------
 #run the function on our dataset to calculate an OBDA for each row
+#first set the frequency of the accelerometer
+freq = 25
+#the time in seconds for the rolling mean
+time = 2
+#calculate window size
+window_size = freq*time
+
 acc.data = acc.data %>%  #again we create a new dataframe called acc.data, using the old acc.data 
   #in otherwords we are just modifying the acc.data dataframe
-  mutate(ODBA = fun_ODBA(X, Y, Z)) #makes a new column which runs the ODBA function on X, Y, Z
+  mutate(ODBA = fun_ODBA(X, Y, Z, window_size)) #makes a new column which runs the ODBA function on X, Y, Z
 head(acc.data, n = 50) #view the first 50 lines to see if it makes sense
 
 #-----Step 3c: time to every 2 seconds-----------------------------
 #since the ODBA values overlap we will remove the extra values
 #we will only keep every 50th row
 #then create a file for each animal
-ODBA = acc.data %>% 
-  mutate(AnimalID = str_extract(Tag.ID, "^\\d{3}")) %>% #gets just the first 3 digits of the tag ID 
+acc.data.ODBA = acc.data %>% 
+  mutate(MeanODBA = frollmean(ODBA, n = window_size, align = "right", fill = NA), #takes the mean over a 2 second window
+         AnimalID = str_extract(Tag.ID, "^\\d{3}")) %>% #gets just the first 3 digits of the tag ID 
   drop_na(ODBA) %>% #remove the first 49 rows with NA in ODBA column, technically removes every row with an NA value in the given column
-  slice(which(row_number() %% 50 == 1)) %>% #now starting with the 1st line keep every 50th row
-  select(AnimalID, Timestamp, X, Y, Z, ODBA) #keep only these columns 
+  slice(which(row_number() %% window_size == 0)) %>% #now keep every 50th row which has our mean ODBA values
+  select(AnimalID, Timestamp, MeanODBA) #keep only these columns 
 head(ODBA) #once again check the first few rows to see if it makes sense, it is every 2 seconds so that's good
 str(ODBA)
 #now save the data as a csv file, changing the AnimalID to match the data you loaded in
@@ -115,43 +122,30 @@ write.csv(ODBA, file = "150_ODBA.csv", row.names = F) #the row.names = F prevent
 
 #-----Step 4: create dataset for analysis-----------------------------
 #-----Step 4a: merge all files into one-----------------------------
+#for sake of teaching, the ODBA data has been already calculated for each file
 #now that we have created all the ODBA files for each 'animal' we bind them into a single data file
 #first view the files you have to get the file names
-list.files(pattern = "\\.csv$", full.names = T)
+files = list.files(pattern = "\\.csv$", full.names = T)
 
-# first load in each animal's ODBA file
-acc1 = read.csv("150_ODBA.csv")
-acc2 = read.csv("152_ODBA.csv")
-acc3 = read.csv("154_ODBA.csv")
-acc4 = read.csv("155_ODBA.csv")
-acc5 = read.csv("157_ODBA.csv")
-acc6 = read.csv("158_ODBA.csv")
-acc7 = read.csv("162_ODBA.csv")
-acc8 = read.csv("163_ODBA.csv")
-acc9 = read.csv("165_ODBA.csv")
-acc10 = read.csv("166_ODBA.csv")
-acc11 = read.csv("169_ODBA.csv")
-acc12 = read.csv("171_ODBA.csv")
-
-#...and in the R bind them 
-ODBA = rbind(acc1, acc2, acc3, acc4, acc5, acc6, 
-             acc7, acc8, acc9, acc10, acc11, acc12) #rbind joins datasets which have the same number and spelling of columns
-  #note that if columns are spelled slightly differently then it wont work (Animal.ID vs AnimalID)
+#using lapply to the list of files the files are read in and combined into one data frame
+#rbindlist binds them together
+#lapply says for every file do the fread() function
+ODBA <- rbindlist(lapply(files, fread), use.names = TRUE, fill = TRUE)
+#note that if columns are spelled slightly differently then it wont work (Animal.ID vs AnimalID)
 
 #we can write the combined file to the hard drive
 #this step prevents you from having to go re-run all the previous code 
 #again if you come back to the data later on
 #just remove the # from the next line to save it to your working directory
-
 #write.csv(ODBA,'KRC_ODBA_combined.csv', row.names = F)
+
 #then just load the file from your working directory
 #ODBA = read.csv('KRC_ODBA_combined.csv', header = T) 
 
-ODBA$AnimalID = as.numeric(ODBA$AnimalID) #sets the AnimalID as a number
-
+#change the Timestamp column to a DateTime object that R recognizes
 ODBA = ODBA %>%
-  mutate(Timestamp = ymd_hms(Timestamp, tz = 'UTC'), #sets the date and time to a DateTime object for plotting
-         AnimalID = as.numeric(AnimalID)) #this also sets the animalID as a number, but a bit more efficiently
+  mutate(Timestamp = ymd_hms(Timestamp,  tz = 'UTC'), #sets the date and time to a DateTime object for plotting
+         AnimalID = as.numeric(AnimalID)) #same as ODBA$AnimalID = as.numeric(ODBA$AnimalID)
 head(ODBA)
 str(ODBA) #this checks the type of data stored in each column
 #you may need to check which of the times did not load properly, this will do that for you
