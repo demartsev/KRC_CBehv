@@ -1,8 +1,11 @@
 # List of packages to install
 packages <- c(
-  "tidyverse", "lme4", "bioacoustics", "warbleR", "tuneR", "seewave", "soundgen",
-  "TTR", "behavr", "ggetho", "zeitgebr", "sleepr", "scales", "chron", "sp", 
-  "raster", "move", "ggmap", "mapproj", "lattice", "RColorBrewer", "adehabitatHR", "ks"
+  "tidyverse", "lme4", "bioacoustics", "warbleR", "Rraven",
+             "tuneR", "seewave", "soundgen", "TTR", "behavr", "ggetho",
+             "zeitgebr", "Sleepr", "scales", "chron", "sp", "raster",
+             "move", "ggmap", "mapproj", "lattice", "RColorBrewer", 
+             "adehabitatHR", "ks", "XML",
+             "viridis",  "cowplot", "rgeos", "ohun"
 )
 
 # Function to install packages if not already installed
