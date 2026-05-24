@@ -1,3 +1,11 @@
+#this script provides and overview of basic R functions
+#you will learn how to install and load packages, load in data, manipulate data, and make plots
+#you will need 4 data files for this script
+#dicerolls.csv available at
+#Lervik.csv available at
+#Navrean.csv available at
+#Okno.csv available at
+
 packages = c("tidyverse", "lme4", "bioacoustics", "warbleR", "Rraven",
              "tuneR", "seewave", "soundgen", "TTR", "behavr", "ggetho",
              "zeitgebr", "sleepr", "scales", "chron", "sp", "raster",
