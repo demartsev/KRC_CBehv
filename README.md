@@ -1,6 +1,6 @@
 Here you will find a selection of example scripts and  data used in the Collective behaviour field course at KRC.
 You can use the provided matherials for:
-1. Performing  basic quality checks on your bioacoustic data , generating spectrogram visualisations and running basic spectral analysis (See PAM folder)
+1. Performing  basic quality checks on your bioacoustic data , generating spectrogram visualisations running basic spectral analysis and performing a simple Random Forest for verifying the quality of call classification (See PAM folder)
 2.  Using camera trap data to assess daily activity patterns
 3.  Assessing daily activity patterns using accelerometer data
 4.  TO ADD: Spatial and movement data (in progress)
