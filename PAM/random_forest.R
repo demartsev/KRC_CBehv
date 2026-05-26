@@ -4,6 +4,11 @@
 # ============================================================
 
 # --- Load required packages ---
+
+#install.packages("devtools")
+#devtools::install_github("DenaJGibbon/gibbonR")
+
+
 library(gibbonR)      # MFCC feature extraction from audio
 library(randomForest) # Random Forest model
 library(caret)        # Confusion matrix evaluation
@@ -103,10 +108,13 @@ library(tidyverse)    # Data wrangling
 #
 # ============================================================
 
-# --- Set path to folder with labeled .wav files ---
+# --- Set path to folder with segmented .wav files ---
 # Files must be named: ClassName_anything.wav (e.g. "Hyena_call01.wav")
-TrainingDataDirectory <- "C:/Users/vdemartsev/ownCloud/SA_field_course/Program/CBEHAV_KRC_Scripts/PAM/test_data/cut_calls/"
 
+#Vlads path
+#TrainingDataDirectory <- "D:/OwnCloud/SA_field_course/Program/CBEHAV_KRC_Scripts/PAM/test_data/cut_calls/"
+ 
+TrainingDataDirectory <- tcltk::tk_choose.dir(caption = "Select Training Data Folder")
 # ============================================================
 # STEP 1: Extract MFCC Features from Audio Files
 # ============================================================

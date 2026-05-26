@@ -1,3 +1,4 @@
+
 ##### this is an example script written for the CBEHAV field course  at the Kalahari Research Centre
 ##### by Vlad Demartsev 
 ##### it is not meant to be an ultimate and complete process for dealing with acoustic data. 
@@ -18,7 +19,6 @@
 
 #### PLEASE READ THE COMMENTS !!!!
 
-
 #load packages
 library(Rraven)
 library(warbleR)
@@ -28,8 +28,8 @@ library(tidyverse)
 vignette("Rraven")
 
 #set the path to the folder where your audio file an your Raven selection table live
-setwd("SET THE PATH TO YOUR DATA FOLDER HERE")
-
+setwd("SET PATH TO YOUR DATA FOLDER")
+#setwd("D:/OwnCloud/SA_field_course/Program/CBEHAV_KRC_Scripts/PAM/selection_tables/")
 
 #### DATA LOADING AND PRE-PROCESSING #####
 
@@ -141,7 +141,7 @@ par(mfrow = c(3, 2), mar = rep(0, 4))
 #and that everything reads into R properly
 for(i in 1:nrow(owlet_calls)){
   #read the sound segment into R
-  wv <- read_wave(X = owlet_calls[i], from = owlet_calls$start[i]-0.1 , to = owlet_calls$end[i]+0.1)
+  wv <- read_wave(X = owlet_calls[i], from = owlet_calls$start[i]-0.1 , to = owlet_calls$end[i]+0.1, index = 1)
   
   #plot a spectrogram
   spectro(wv, wl = 256, grid = FALSE, scale = FALSE, axisX = T,
@@ -175,8 +175,8 @@ ggplot(data = SNR, aes(x = Annotation, y = SNR)) + geom_boxplot()
 #something might be wrong with our data. 
 
 cross_corr <- cross_correlation(owlet_calls, wl = 512, bp = "pairwise.freq.range", ovlp = 70,
-                  dens = NULL, wn = 'hanning', cor.method = "pearson", parallel = 1,
-                  path = NULL, pb = TRUE, na.rm = FALSE, cor.mat = NULL, output = "cor.mat",
+                   wn = 'hanning', cor.method = "pearson", parallel = 1,
+                  path = NULL, pb = TRUE, na.rm = FALSE, output = "cor.mat",
                   templates = NULL, surveys = NULL, compare.matrix = NULL, type = "fourier",
                   nbands = 40, method = 1)
 
@@ -244,7 +244,7 @@ all_measurements <- data.frame()
 
 for(i in 1:nrow(owlet_calls)){
   #read the sound segment into R
-  wv <- read_wave(X = owlet_calls[i], from = owlet_calls$start[i]-0.1 , to = owlet_calls$end[i]+0.1)
+  wv <- read_wave(X = owlet_calls[i], from = owlet_calls$start[i]-0.1 , to = owlet_calls$end[i]+0.1, index = 1)
   #do the measurments and save the output as a1 object
   a1 = analyze(wv, samplingRate = wv@samp.rate, plot = TRUE, ylim = c(0, 10))
   #add the output to one big table
